@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include "config.h"
 
 int main(){
@@ -20,6 +21,20 @@ int main(){
 
     printf("\n");
     printf("\n");
+
+    if (numJugadores < MAX_JUGADORES) {
+        printf("\t\tIngrese su nombre: ");
+        fgets(jugadores[numJugadores].nombre, sizeof(jugadores[numJugadores].nombre), stdin);
+        size_t len = strlen(jugadores[numJugadores].nombre);
+        // Se elimina salto de línea del arreglo de caracteres
+        if (len > 0 && jugadores[numJugadores].nombre[len - 1] == '\n') {
+            jugadores[numJugadores].nombre[len - 1] = '\0';
+        }
+        (numJugadores)++;
+    }
+
+    saludo_bienvenida(jugadores, numJugadores);
+    imprimir_reglas();
 
     choose_opt(&opt, jugadores, &numJugadores);
 

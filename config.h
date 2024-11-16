@@ -14,6 +14,7 @@ typedef struct {
 
 void choose_opt(int *opt, Jugador jugadores[], int *numJugadores);
 void imprimir_jugadores(Jugador jugadores[], int numJugadores);
+void saludo_bienvenida(Jugador jugadores[], int numJugadores);
 void imprimir_reglas();
 void barajar(int cartas[]);
 void jugar_blackjack(int cartas[], Jugador jugadores[], int numJugadores);

@@ -7,35 +7,21 @@
 // Menu principal
 void choose_opt(int *opt, Jugador jugadores[], int *numJugadores){  // Función de elegir opción
     do {
-        printf("\n1) Agregar jugador\n");
-        printf("2) Jugar\n");
-        printf("3) Lista de jugadores\n");
-        printf("4) Ver reglas\n");
-        printf("5) Ver ranking de ganadores\n");
-        printf("6) Ver ranking de perdedores\n");
-        printf("7) Salir del juego\n");
+        printf("\n\t1) Jugar\n");
+        printf("\t2) Agregar jugador\n");
+        printf("\t3) Lista de jugadores\n");
+        printf("\t4) Ver reglas\n");
+        printf("\t5) Ver ranking de ganadores\n");
+        printf("\t6) Ver ranking de perdedores\n");
+        printf("\t7) Salir del juego\n");
         printf("\nOpción: ");
         scanf("%d", opt);
         getchar(); // limpia el buffer
         switch (*opt) {
-            case 1:
-                printf("\nOpción %d elegida: \n", *opt);
-                if (*numJugadores < MAX_JUGADORES) {
-                    printf("Ingrese el nombre del jugador %d: ", *numJugadores + 1);
-                    fgets(jugadores[*numJugadores].nombre, sizeof(jugadores[*numJugadores].nombre), stdin);
-                    size_t len = strlen(jugadores[*numJugadores].nombre);
-                    // Se elimina salto de línea del arreglo de caracteres
-                    if (len > 0 && jugadores[*numJugadores].nombre[len - 1] == '\n') {
-                        jugadores[*numJugadores].nombre[len - 1] = '\0';
-                    }
-                    (*numJugadores)++;
-                } else {
-                    printf("Máximo de jugadores alcanzado.\n");
-                }
-                break;
+            
 
-            // ------ case 2: funciones de juego contenidos en archivo jugar_bj.c ------
-            case 2:
+            // ------ case 1: funciones de juego contenidos en archivo jugar_bj.c ------
+            case 1:
                 if (*numJugadores > 0) {
                     printf("\nOpción %d elegida: Jugar\n", *opt);
                     int cartas[MAX_CARTAS];
@@ -46,6 +32,43 @@ void choose_opt(int *opt, Jugador jugadores[], int *numJugadores){  // Función 
                 }
                 break;
 
+            case 2:
+                printf("\nOpción %d elegida: Agregar jugador\n", *opt);
+                printf("\nTotal de jugadores a agregar permitidos son %d\n", MAX_JUGADORES);
+
+                char valor[3];  // Arreglo para captura de respuesta (s/n)
+
+                // Pedir confirmación
+                printf("¿Deseas continuar? (s/n): ");
+                fgets(valor, sizeof(valor), stdin);
+
+                // Eliminar el salto de línea '\n' capturado por fgets
+                valor[strcspn(valor, "\n")] = '\0';  // Esto reemplaza '\n' por '\0' si está presente
+
+                // Validación de entrada
+                if (strlen(valor) != 1 || (valor[0] != 's' && valor[0] != 'n')) {
+                    printf("Entrada no válida, solo se permite una letra (s/n).\n");
+                    break;
+                }
+
+                if (valor[0] == 's') {
+                    if (*numJugadores < MAX_JUGADORES) {
+                        printf("Ingrese el nombre del jugador %d: ", *numJugadores + 1);
+                        fgets(jugadores[*numJugadores].nombre, sizeof(jugadores[*numJugadores].nombre), stdin);
+
+                        // Eliminar salto de línea al final del nombre
+                        jugadores[*numJugadores].nombre[strcspn(jugadores[*numJugadores].nombre, "\n")] = '\0';
+
+                        (*numJugadores)++;
+                    } else {
+                        printf("Máximo de jugadores alcanzado.\n");
+                    }
+                } else if (valor[0] == 'n') {
+                    printf("Has elegido no.\n");
+                }
+
+                break;
+      
             case 3:
                 printf("\nOPCION 3 ELEGIDA: LISTA DE JUGADORES\n");
                 imprimir_jugadores(jugadores, *numJugadores);
@@ -101,4 +124,8 @@ void imprimir_jugadores(Jugador jugadores[], int numJugadores){
             printf("Jugador[%d]: %s\n", i + 1, jugadores[i].nombre);
         }
     }
+}
+
+void saludo_bienvenida(Jugador jugadores[], int numJugadores){
+    printf("\nBienvenido/a %s\n", jugadores[0].nombre);
 }
