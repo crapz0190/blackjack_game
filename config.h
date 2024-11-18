@@ -10,6 +10,10 @@ typedef struct {
     char nombre[100];
     int mano[CARTAS_JUGADOR];
     int suma;
+    int monto_apuesta;
+    int dinero_apostado;
+    int dinero_perdido;
+    int dinero_ganado;
 } Jugador;
 
 void choose_opt(int *opt, Jugador jugadores[], int *numJugadores);

@@ -30,13 +30,26 @@ int main(){
         if (len > 0 && jugadores[numJugadores].nombre[len - 1] == '\n') {
             jugadores[numJugadores].nombre[len - 1] = '\0';
         }
+
+        do {
+            printf("\t\tIngrese monto para apuestas (mínimo: USD 500 - máximo USD 5000): ");
+            scanf("%d", &jugadores[numJugadores].monto_apuesta);
+            getchar();
+            if(jugadores[numJugadores].monto_apuesta >= 500 && jugadores[numJugadores].monto_apuesta <= 5000){
+                saludo_bienvenida(jugadores, numJugadores);
+                imprimir_reglas();
+
+            } else {
+                printf("\n\t\tMonto Ingresado inválido, intente de nuevo\n");
+            }
+
+        } while(jugadores[numJugadores].monto_apuesta < 500 || jugadores[numJugadores].monto_apuesta > 5000);
+            
         (numJugadores)++;
     }
 
-    saludo_bienvenida(jugadores, numJugadores);
-    imprimir_reglas();
-
     choose_opt(&opt, jugadores, &numJugadores);
+    
 
     // ---------- ranking --------------
     //          codigo aqui

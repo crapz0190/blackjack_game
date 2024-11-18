@@ -14,7 +14,7 @@ void choose_opt(int *opt, Jugador jugadores[], int *numJugadores){  // Función 
         printf("\t5) Ver ranking de ganadores\n");
         printf("\t6) Ver ranking de perdedores\n");
         printf("\t7) Salir del juego\n");
-        printf("\nOpción: ");
+        printf("\n\tOpción: ");
         scanf("%d", opt);
         getchar(); // limpia el buffer
         switch (*opt) {
@@ -43,7 +43,7 @@ void choose_opt(int *opt, Jugador jugadores[], int *numJugadores){  // Función 
                 fgets(valor, sizeof(valor), stdin);
 
                 // Eliminar el salto de línea '\n' capturado por fgets
-                valor[strcspn(valor, "\n")] = '\0';  // Esto reemplaza '\n' por '\0' si está presente
+                valor[strcspn(valor, "\n")] = '\0';
 
                 // Validación de entrada
                 if (strlen(valor) != 1 || (valor[0] != 's' && valor[0] != 'n')) {
@@ -127,5 +127,5 @@ void imprimir_jugadores(Jugador jugadores[], int numJugadores){
 }
 
 void saludo_bienvenida(Jugador jugadores[], int numJugadores){
-    printf("\nBienvenido/a %s\n", jugadores[0].nombre);
+    printf("\n\tBienvenido/a %s\n", jugadores[0].nombre);
 }
