@@ -10,10 +10,15 @@ typedef struct {
     char nombre[100];
     int mano[CARTAS_JUGADOR];
     int suma;
-    int monto_apuesta;
-    int dinero_apostado;
+    int monto_inicial;
+    int monto_apuesta; // Dinero Acumulado
+    int dinero_apostado; // Apuesta realizada
     int dinero_perdido;
     int dinero_ganado;
+    int partidas_ganadas;  // número de partidas ganadas
+    int partidas_perdidas; // número de partidas perdidas
+    int contador_ganancias;
+    int contador_perdidas;
 } Jugador;
 
 void choose_opt(int *opt, Jugador jugadores[], int *numJugadores);
@@ -27,5 +32,7 @@ void mostrar_carta(int carta);
 void mostrar_mano(int mano[], int cantidad);
 void mostrar_resultado(Jugador jugadores[], int numJugadores, Jugador *crupier);
 void turno_crupier(Jugador *crupier, int cartas[], int *indiceCarta);
+void guardar_datos_jugador(Jugador jugador);
+void guardar_registro_partida(Jugador jugadores);
 
 #endif

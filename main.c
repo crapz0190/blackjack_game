@@ -36,6 +36,13 @@ int main(){
             scanf("%d", &jugadores[numJugadores].monto_apuesta);
             getchar();
             if(jugadores[numJugadores].monto_apuesta >= 500 && jugadores[numJugadores].monto_apuesta <= 5000){
+                jugadores[numJugadores].monto_inicial = jugadores[numJugadores].monto_apuesta;
+                jugadores[numJugadores].dinero_ganado = 0;  // Inicializar dinero ganada en 0
+                jugadores[numJugadores].dinero_perdido = 0; // Inicializar dinero perdido en 0
+                jugadores[numJugadores].partidas_ganadas = 0; // Inicializar partidas ganadas en 0
+                jugadores[numJugadores].partidas_perdidas = 0; // Inicializar partidas perdidas en 0
+                jugadores[numJugadores].contador_ganancias = 0; // Inicializar contador de ganancias en 0
+                jugadores[numJugadores].contador_perdidas = 0; // Inicializar contador de perdidas en 0
                 saludo_bienvenida(jugadores, numJugadores);
                 imprimir_reglas();
 

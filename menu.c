@@ -8,12 +8,11 @@
 void choose_opt(int *opt, Jugador jugadores[], int *numJugadores){  // Función de elegir opción
     do {
         printf("\n\t1) Jugar\n");
-        printf("\t2) Agregar jugador\n");
-        printf("\t3) Lista de jugadores\n");
-        printf("\t4) Ver reglas\n");
-        printf("\t5) Ver ranking de ganadores\n");
-        printf("\t6) Ver ranking de perdedores\n");
-        printf("\t7) Salir del juego\n");
+        printf("\t2) Lista de jugadores\n");
+        printf("\t3) Ver reglas\n");
+        printf("\t4) Ver ranking de ganadores\n");
+        printf("\t5) Ver ranking de perdedores\n");
+        printf("\t6) Salir del juego\n");
         printf("\n\tOpción: ");
         scanf("%d", opt);
         getchar(); // limpia el buffer
@@ -24,6 +23,8 @@ void choose_opt(int *opt, Jugador jugadores[], int *numJugadores){  // Función 
             case 1:
                 if (*numJugadores > 0) {
                     printf("\nOpción %d elegida: Jugar\n", *opt);
+                    // Cargar datos de los jugadores antes de comenzar
+                    // cargar_datos_jugadores(jugadores, *numJugadores);
                     int cartas[MAX_CARTAS];
                     barajar(cartas); // Baraja cartas
                     jugar_blackjack(cartas, jugadores, *numJugadores);
@@ -31,65 +32,29 @@ void choose_opt(int *opt, Jugador jugadores[], int *numJugadores){  // Función 
                     printf("No hay jugadores para jugar.\n");
                 }
                 break;
-
-            case 2:
-                printf("\nOpción %d elegida: Agregar jugador\n", *opt);
-                printf("\nTotal de jugadores a agregar permitidos son %d\n", MAX_JUGADORES);
-
-                char valor[3];  // Arreglo para captura de respuesta (s/n)
-
-                // Pedir confirmación
-                printf("¿Deseas continuar? (s/n): ");
-                fgets(valor, sizeof(valor), stdin);
-
-                // Eliminar el salto de línea '\n' capturado por fgets
-                valor[strcspn(valor, "\n")] = '\0';
-
-                // Validación de entrada
-                if (strlen(valor) != 1 || (valor[0] != 's' && valor[0] != 'n')) {
-                    printf("Entrada no válida, solo se permite una letra (s/n).\n");
-                    break;
-                }
-
-                if (valor[0] == 's') {
-                    if (*numJugadores < MAX_JUGADORES) {
-                        printf("Ingrese el nombre del jugador %d: ", *numJugadores + 1);
-                        fgets(jugadores[*numJugadores].nombre, sizeof(jugadores[*numJugadores].nombre), stdin);
-
-                        // Eliminar salto de línea al final del nombre
-                        jugadores[*numJugadores].nombre[strcspn(jugadores[*numJugadores].nombre, "\n")] = '\0';
-
-                        (*numJugadores)++;
-                    } else {
-                        printf("Máximo de jugadores alcanzado.\n");
-                    }
-                } else if (valor[0] == 'n') {
-                    printf("Has elegido no.\n");
-                }
-
-                break;
       
-            case 3:
-                printf("\nOPCION 3 ELEGIDA: LISTA DE JUGADORES\n");
+            case 2:
+                
+                printf("\nOpción %d elegida: LISTA DE JUGADORES \n", *opt);
                 imprimir_jugadores(jugadores, *numJugadores);
                 break;
 
-            case 4:
+            case 3:
                 printf("\nOpción %d elegida: VER REGLAS \n", *opt);
                 imprimir_reglas();
                 break;
 
-            case 5:
-                printf("\nOPCION 5 ELEGIDA: Ver ranking ganadores:\n");
+            case 4:
+                printf("\nOpción %d elegida: Ver ranking ganadores: \n", *opt);
                 // Lógica de ranking ganadores aquí
                 break;
 
-            case 6:
-                printf("\nOPCION 6 ELEGIDA: Ver ranking perdedores:\n");
+            case 5:
+                printf("\nOpción %d elegida: Ver ranking perdedores: \n", *opt);
                 // Lógica de ranking perdedores aquí
                 break;
 
-            case 7:
+            case 6:
                 printf("SALIENDO DEL JUEGO!\n");
                 break;
 
@@ -97,7 +62,7 @@ void choose_opt(int *opt, Jugador jugadores[], int *numJugadores){  // Función 
                 printf("\nOpción no válida. Por favor, elija nuevamente.\n");
                 break;
         }
-    } while (*opt != 7);
+    } while (*opt != 6);
 }
 
 // Imprimir reglas

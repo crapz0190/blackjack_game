@@ -74,8 +74,10 @@ void mostrar_resultado(Jugador jugadores[], int numJugadores, Jugador *crupier) 
     if (crupier->suma > 21) {
         for (int i = 0; i < numJugadores; i++) {
             // Los jugadores ganan el doble de su apuesta
+            jugadores[i].contador_ganancias += jugadores[i].dinero_apostado; // Contador de ganancias
             jugadores[i].dinero_ganado = jugadores[i].dinero_apostado * 2;
             jugadores[i].monto_apuesta += jugadores[i].dinero_ganado;  // Sumar lo ganado al saldo del jugador
+            jugadores[i].partidas_ganadas += 1;
             printf("%s has ganado USD %d\n", jugadores[i].nombre, jugadores[i].dinero_ganado);
         }
         return; // Salir ya que el crupier perdió automáticamente
@@ -85,21 +87,36 @@ void mostrar_resultado(Jugador jugadores[], int numJugadores, Jugador *crupier) 
     for (int i = 0; i < numJugadores; i++) {
         if (jugadores[i].suma > 21) {
             printf("%s, te pasaste de 21. ¡GANA EL CRUPIER!\n", jugadores[i].nombre);
+            jugadores[i].contador_perdidas += jugadores[i].dinero_apostado; // Contador de perdidas
             jugadores[i].dinero_perdido = jugadores[i].dinero_apostado; // Perdió su apuesta
+            jugadores[i].partidas_perdidas += 1;
             printf("Has perdido USD %d\n", jugadores[i].dinero_perdido);
         } else if (jugadores[i].suma > crupier->suma) {
             printf("\n%s tus puntos fueron %d, ¡GANASTE!\n", jugadores[i].nombre, jugadores[i].suma);
+            jugadores[i].contador_ganancias += jugadores[i].dinero_apostado; // Contador de ganancias
             jugadores[i].dinero_ganado = jugadores[i].dinero_apostado * 2;  // Doble de la apuesta
             jugadores[i].monto_apuesta += jugadores[i].dinero_ganado;  // Sumar lo ganado
-            printf("Has ganado USD %d\n", jugadores[i].dinero_ganado);
+            jugadores[i].partidas_ganadas += 1;
+            printf("Has ganado USD %d\n", jugadores[i].dinero_ganado / 2);
         } else if (jugadores[i].suma < crupier->suma) {
             printf("El crupier gana contra %s\n", jugadores[i].nombre);
+             jugadores[i].contador_perdidas += jugadores[i].dinero_apostado; // Contador de perdidas
             jugadores[i].dinero_perdido = jugadores[i].dinero_apostado; // Perdió su apuesta
+            jugadores[i].partidas_perdidas += 1;
             printf("Has perdido USD %d\n", jugadores[i].dinero_perdido);
         } else {
             jugadores[i].monto_apuesta += jugadores[i].dinero_apostado;  // Vuelve a sumarse la apuesta
+            //  -------------------- incluir partidas empatadas  ---------------------
+            //  -------------------- incluir partidas empatadas  ---------------------
+            //  -------------------- incluir partidas empatadas  ---------------------
             printf("%s tus puntos fueron de %d, ¡Es un empate!\n", jugadores[i].nombre, jugadores[i].suma);
         }
+    }
+
+    // -------------------------- GUARDAS LOS RESULTADOS EN LOS ARCHIVOS --------------------------
+    for (int i = 0; i < numJugadores; i++) {
+        guardar_datos_jugador(jugadores[i]);  // Guardar los datos actualizados de los jugadores
+        // guardar_registro_partida(jugadores[i]); // Guardar los registros de la partida
     }
 }
 
@@ -149,7 +166,13 @@ void jugar_blackjack(int cartas[], Jugador jugadores[], int numJugadores) {
 
     // Mostrar las manos de los jugadores y del crupier
     for (int i = 0; i < numJugadores; i++) {
-        printf("\nDinero disponible de %s: USD %d\n", jugadores[i].nombre, jugadores[i].monto_apuesta);
+        printf("----------------------------------------");
+        printf("\nDinero inicial de %s: USD %d\n", jugadores[i].nombre, jugadores[i].monto_inicial);
+        printf("\nDinero Ganado: USD %d", jugadores[i].contador_ganancias);
+        printf("\nDinero Perdido: USD %d\n", jugadores[i].contador_perdidas);
+        printf("\nDinero Final Acumulado: USD %d\n", jugadores[i].monto_apuesta);
+        printf("----------------------------------------");
+
         printf("\nCARTAS DE %s:\n", jugadores[i].nombre);
         mostrar_mano(jugadores[i].mano, 2);
         jugadores[i].suma = 0;
@@ -171,7 +194,7 @@ void jugar_blackjack(int cartas[], Jugador jugadores[], int numJugadores) {
     for (int i = 0; i < numJugadores; i++) {
         char opcion;
         
-        // -------------------- apuestas ----------------------
+        // -------------------- apuestas - inicio ----------------------
 
         char valor[3];  // Arreglo para captura de respuesta (s/n)
         // Preguntar si desea realizar una apuesta
@@ -194,32 +217,36 @@ void jugar_blackjack(int cartas[], Jugador jugadores[], int numJugadores) {
 
         if (valor[0] == 's') {
             printf("Has elegido sí\n");
+            
+            // Validar monto de apuesta
+            if(jugadores[i].monto_apuesta < 50){
+                printf("No tienes suficiente dinero para realizar esta apuesta. Tu saldo es de USD %d\n", jugadores[i].monto_apuesta);
+                return; // Salir ya que el jugador no tiene saldo disponible
+            }
 
             // Pedir monto de la apuesta
             int apuestaValida = 0;
             do {
+
                 printf("\t\tIngrese el monto de tu apuesta (mínimo USD 50): ");
                 int valor_apuesta;
                 scanf("%d", &valor_apuesta);
                 getchar(); // Limpiar el buffer
 
-                // Validar monto de apuesta
                 if (valor_apuesta >= 50 && valor_apuesta <= jugadores[i].monto_apuesta) {
-                    if (valor_apuesta <= jugadores[i].monto_apuesta) {
-                        jugadores[i].monto_apuesta -= valor_apuesta; // Restar monto apostado del saldo disponible
-                        jugadores[i].dinero_apostado = valor_apuesta;  // Guardar el monto apostado
-                        printf("Apuesta de USD %d realizada\n", valor_apuesta);
-                        apuestaValida = 1;
-                    } else {
-                        printf("No tienes suficiente dinero para realizar esa apuesta. Tu saldo es de USD %d\n", jugadores[i].monto_apuesta);
-                    }
+                   
+                    jugadores[i].monto_apuesta -= valor_apuesta; // Restar monto apostado del saldo disponible
+                    jugadores[i].dinero_apostado = valor_apuesta;  // Guardar el monto apostado
+                    printf("Apuesta de USD %d realizada\n", valor_apuesta);
+                    apuestaValida = 1;
+                    
                 } else {
-                    printf("\t\tMonto de apuesta inválido\n");
-                }
+                    printf("\t\tMonto de apuesta inválido, revisá tú dinero disponible\n");
+                }                
             } while (!apuestaValida);  // Repetir hasta que la apuesta sea válida
         }
 
-        // -------------------- apuestas ----------------------
+        // -------------------- apuestas - fin ----------------------
 
         // Si el jugador quiere apostar, continúa con el turno de pedir cartas
         while (jugadores[i].suma < 21) {
@@ -244,3 +271,42 @@ void jugar_blackjack(int cartas[], Jugador jugadores[], int numJugadores) {
     // Mostrar el resultado
     mostrar_resultado(jugadores, numJugadores, &crupier);
 }
+
+// --------------------------- ALMACENAMIENTO DE DATOS DEL JUGADOR ---------------------------
+void guardar_datos_jugador(Jugador jugador) {
+    FILE *archivo = fopen("datos_jugadores.txt", "a"); // Abrir archivo en modo append
+    if (archivo == NULL) {
+        printf("Error al abrir el archivo para guardar los datos del jugador.\n");
+        return;
+    }
+
+    // Escribir datos del jugador en el archivo
+    fprintf(archivo, "Jugador: %s, Monto Inicial: %d, Monto Final: %d\n",
+        jugador.nombre,
+        jugador.monto_inicial,
+        jugador.monto_apuesta);
+
+    fclose(archivo);
+}
+
+// --------------------------- REGISTRO DE PARTIDAS ---------------------------
+// void guardar_registro_partida(Jugador jugadores) {
+//     FILE *archivo = fopen("registros_partidas.txt", "a"); // Abrir archivo en modo append
+//     if (archivo == NULL) {
+//         printf("Error al abrir el archivo para guardar el registro de la partida.\n");
+//         return;
+//     }
+
+//     // Escribir los resultados de la partida
+//     fprintf(archivo, "Jugador: %s, Dinero Acumulado: %d, Dinero Apuesta: %d, Dinero Ganado: %d, Dinero Perdido: %d, Partidas Ganadas: %d, Partidas Perdidas: %d\n",
+//         jugadores.nombre,
+//         jugadores.monto_apuesta,
+//         jugadores.dinero_apostado,
+//         jugadores.dinero_ganado / 2,
+//         jugadores.dinero_perdido,
+//         jugadores.partidas_ganadas,
+//         jugadores.partidas_perdidas
+//         );
+
+//     fclose(archivo);
+// }
