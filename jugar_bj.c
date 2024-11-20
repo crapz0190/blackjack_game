@@ -1,11 +1,12 @@
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
-#include <string.h>
 #include "config.h"
+#include<string.h>
+
 
 // Barajar el mazo de cartas
-void barajar(int cartas[]) {
+void barajar(int cartas[]){
     int mazo[MAX_CARTAS];
 
     for (int i = 0; i < MAX_CARTAS; i++) {
@@ -22,6 +23,120 @@ void barajar(int cartas[]) {
         cartas[i] = mazo[t];
         mazo[t] = 0; // Marca la carta como tomada
     }
+}
+
+// Jugar Blackjack para todos los jugadores y el crupier
+void jugar_blackjack(int cartas[], Jugador jugadores[], int numJugadores) {
+
+Jugador crupier = {"Crupier", {0}, 0}; // Crear al crupier
+int indiceCarta = 0;
+
+// -------------------- apuestas ----------------------
+for (int i = 0; i < numJugadores; i++) {
+    char valor[3];  // Arreglo para captura de respuesta (s/n)
+    // Preguntar si desea realizar una apuesta
+    printf("\n%s, ¿quieres realizar una apuesta? (s/n): ", jugadores[i].nombre);
+    fgets(valor, sizeof(valor), stdin);
+    valor[strcspn(valor, "\n")] = '\0'; // Eliminar el salto de línea '\n'
+
+    // Validación de entrada
+    if (strlen(valor) != 1 || (valor[0] != 's' && valor[0] != 'n')) {
+        printf("Entrada no válida, solo se permite una letra (s/n)\n");
+        return;
+    }
+
+    if (valor[0] == 'n') {
+        printf("%s ha elegido no apostar. Terminando la partida y regresando al menú\n", jugadores[i].nombre);
+        return; // Sale de la función y termina la partida
+    }
+
+    if (valor[0] == 's') {
+        printf("%s ha elegido sí\n", jugadores[i].nombre);
+
+        // Pedir monto de la apuesta
+        int apuestaValida = 0;
+        do {
+            printf("\t\tIngrese el monto de tu apuesta (mínimo USD 50): ");
+            int valor_apuesta;
+            scanf("%d", &valor_apuesta);
+            getchar(); // Limpiar el buffer
+
+            // Validar monto de apuesta
+            if (valor_apuesta >= 50 && valor_apuesta <= jugadores[i].monto_apuesta) {
+                jugadores[i].monto_apuesta -= valor_apuesta; // Restar monto apostado del saldo disponible
+                jugadores[i].dinero_apostado = valor_apuesta;  // Guardar el monto apostado
+                printf("Apuesta de USD %d realizada\n", valor_apuesta);
+                apuestaValida = 1;
+            } else {
+                printf("Monto de apuesta inválido. Tu saldo disponible es USD %d\n", jugadores[i].monto_apuesta);
+            }
+        } while (!apuestaValida);  // Repetir hasta que la apuesta sea válida
+    }
+}
+// -------------------- apuestas ----------------------
+
+// Repartir dos cartas a cada jugador
+for (int i = 0; i < numJugadores; i++) {
+    jugadores[i].suma = 0;
+    jugadores[i].mano[0] = cartas[indiceCarta++];
+    jugadores[i].mano[1] = cartas[indiceCarta++];
+}
+
+// Repartir dos cartas al crupier
+crupier.mano[0] = cartas[indiceCarta++];
+crupier.mano[1] = cartas[indiceCarta++];
+
+// Mostrar las manos de los jugadores y del crupier
+    for (int i = 0; i < numJugadores; i++) {
+        printf("----------------------------------------");
+        printf("\nDinero inicial de %s: USD %d\n", jugadores[i].nombre, jugadores[i].monto_inicial);
+        printf("\nDinero Ganado: USD %d", jugadores[i].contador_ganancias);
+        printf("\nDinero Perdido: USD %d\n", jugadores[i].contador_perdidas);
+        printf("\nDinero Final Acumulado: USD %d\n", jugadores[i].monto_apuesta);
+        printf("----------------------------------------");
+
+        printf("\nCARTAS DE %s:\n", jugadores[i].nombre);
+        mostrar_mano(jugadores[i].mano, 2);
+        jugadores[i].suma = 0;
+        for (int j = 0; j < 2; j++) {
+            jugadores[i].suma += convertir_valor_carta(jugadores[i].mano[j], &jugadores[i].suma);
+        }
+        printf("TOTAL DE %s: %d\n", jugadores[i].nombre, jugadores[i].suma);
+    }
+printf("\nCARTAS DEL CRUPIER:\n");
+mostrar_mano(crupier.mano, 2);
+crupier.suma = 0;
+for (int i = 0; i < 2; i++) {
+    crupier.suma += convertir_valor_carta(crupier.mano[i], &crupier.suma);
+}
+printf("TOTAL DEL CRUPIER: %d\n", crupier.suma);
+
+// Turno de cada jugador
+for (int i = 0; i < numJugadores; i++) {
+    char opcion;
+
+    // Turno de pedir cartas
+    while (jugadores[i].suma < 21) {
+        printf("%s, ¿deseas pedir otra carta? (s/n): ", jugadores[i].nombre);
+        opcion = getchar();
+        getchar(); // Limpiar buffer
+        if (opcion == 's') {
+            jugadores[i].mano[2] = cartas[indiceCarta++];
+            printf("Tienes las cartas: \n");
+            mostrar_mano(jugadores[i].mano, 3);
+            jugadores[i].suma += convertir_valor_carta(jugadores[i].mano[2], &jugadores[i].suma);
+            printf("Total: %d\n", jugadores[i].suma);
+        } else {
+            break;
+        }
+    }
+}
+
+// Turno del crupier
+turno_crupier(&crupier, cartas, &indiceCarta);
+
+// Mostrar el resultado
+mostrar_resultado(jugadores, numJugadores, &crupier);
 }
 
 // Convertir el valor de la carta
@@ -83,6 +198,7 @@ void mostrar_resultado(Jugador jugadores[], int numJugadores, Jugador *crupier) 
         return; // Salir ya que el crupier perdió automáticamente
     }
 
+
     // Caso donde el crupier no se pasó de 21
     for (int i = 0; i < numJugadores; i++) {
         if (jugadores[i].suma > 21) {
@@ -106,22 +222,18 @@ void mostrar_resultado(Jugador jugadores[], int numJugadores, Jugador *crupier) 
             printf("Has perdido USD %d\n", jugadores[i].dinero_perdido);
         } else {
             jugadores[i].monto_apuesta += jugadores[i].dinero_apostado;  // Vuelve a sumarse la apuesta
-            //  -------------------- incluir partidas empatadas  ---------------------
-            //  -------------------- incluir partidas empatadas  ---------------------
-            //  -------------------- incluir partidas empatadas  ---------------------
+            jugadores[i].partidas_empatadas +=1;
             printf("%s tus puntos fueron de %d, ¡Es un empate!\n", jugadores[i].nombre, jugadores[i].suma);
         }
-    }
+    }   
 
-    // -------------------------- GUARDAS LOS RESULTADOS EN LOS ARCHIVOS --------------------------
+        // -------------------------- GUARDAS LOS RESULTADOS EN LOS ARCHIVOS --------------------------
     for (int i = 0; i < numJugadores; i++) {
         guardar_datos_jugador(jugadores[i]);  // Guardar los datos actualizados de los jugadores
         // guardar_registro_partida(jugadores[i]); // Guardar los registros de la partida
     }
 }
 
-
-// Turno del crupier
 void turno_crupier(Jugador *crupier, int cartas[], int *indiceCarta) {
     printf("\nTURNOS DEL CRUPIER:\n");
 
@@ -148,129 +260,6 @@ void turno_crupier(Jugador *crupier, int cartas[], int *indiceCarta) {
     }
 }
 
-// Jugar Blackjack para todos los jugadores y el crupier
-void jugar_blackjack(int cartas[], Jugador jugadores[], int numJugadores) {
-    Jugador crupier = {"Crupier", {0}, 0}; // Crear al crupier
-    int indiceCarta = 0;
-
-    // Repartir dos cartas a cada jugador
-    for (int i = 0; i < numJugadores; i++) {
-        jugadores[i].suma = 0;
-        jugadores[i].mano[0] = cartas[indiceCarta++];
-        jugadores[i].mano[1] = cartas[indiceCarta++];
-    }
-
-    // Repartir dos cartas al crupier
-    crupier.mano[0] = cartas[indiceCarta++];
-    crupier.mano[1] = cartas[indiceCarta++];
-
-    // Mostrar las manos de los jugadores y del crupier
-    for (int i = 0; i < numJugadores; i++) {
-        printf("----------------------------------------");
-        printf("\nDinero inicial de %s: USD %d\n", jugadores[i].nombre, jugadores[i].monto_inicial);
-        printf("\nDinero Ganado: USD %d", jugadores[i].contador_ganancias);
-        printf("\nDinero Perdido: USD %d\n", jugadores[i].contador_perdidas);
-        printf("\nDinero Final Acumulado: USD %d\n", jugadores[i].monto_apuesta);
-        printf("----------------------------------------");
-
-        printf("\nCARTAS DE %s:\n", jugadores[i].nombre);
-        mostrar_mano(jugadores[i].mano, 2);
-        jugadores[i].suma = 0;
-        for (int j = 0; j < 2; j++) {
-            jugadores[i].suma += convertir_valor_carta(jugadores[i].mano[j], &jugadores[i].suma);
-        }
-        printf("TOTAL DE %s: %d\n", jugadores[i].nombre, jugadores[i].suma);
-    }
-
-    printf("\nCARTAS DEL CRUPIER:\n");
-    mostrar_mano(crupier.mano, 2);
-    crupier.suma = 0;
-    for (int i = 0; i < 2; i++) {
-        crupier.suma += convertir_valor_carta(crupier.mano[i], &crupier.suma);
-    }
-    printf("TOTAL DEL CRUPIER: %d\n", crupier.suma);
-
-    // Turno de cada jugador
-    for (int i = 0; i < numJugadores; i++) {
-        char opcion;
-        
-        // -------------------- apuestas - inicio ----------------------
-
-        char valor[3];  // Arreglo para captura de respuesta (s/n)
-        // Preguntar si desea realizar una apuesta
-        printf("\n¿Quieres realizar una apuesta? (s/n): ");
-        fgets(valor, sizeof(valor), stdin);
-        // Eliminar el salto de línea '\n' capturado por fgets
-        valor[strcspn(valor, "\n")] = '\0';
-
-        // Validación de entrada
-        if (strlen(valor) != 1 || (valor[0] != 's' && valor[0] != 'n')) {
-            printf("Entrada no válida, solo se permite una letra (s/n)\n");
-            break;
-        }
-
-        // Si el jugador dice NO, se termina la partida y se regresa al menú
-        if (valor[0] == 'n') {
-            printf("Has elegido no apostar. Terminando la partida y regresando al menú\n");
-            return; // Sale de la función y termina la partida
-        }
-
-        if (valor[0] == 's') {
-            printf("Has elegido sí\n");
-            
-            // Validar monto de apuesta
-            if(jugadores[i].monto_apuesta < 50){
-                printf("No tienes suficiente dinero para realizar esta apuesta. Tu saldo es de USD %d\n", jugadores[i].monto_apuesta);
-                return; // Salir ya que el jugador no tiene saldo disponible
-            }
-
-            // Pedir monto de la apuesta
-            int apuestaValida = 0;
-            do {
-
-                printf("\t\tIngrese el monto de tu apuesta (mínimo USD 50): ");
-                int valor_apuesta;
-                scanf("%d", &valor_apuesta);
-                getchar(); // Limpiar el buffer
-
-                if (valor_apuesta >= 50 && valor_apuesta <= jugadores[i].monto_apuesta) {
-                   
-                    jugadores[i].monto_apuesta -= valor_apuesta; // Restar monto apostado del saldo disponible
-                    jugadores[i].dinero_apostado = valor_apuesta;  // Guardar el monto apostado
-                    printf("Apuesta de USD %d realizada\n", valor_apuesta);
-                    apuestaValida = 1;
-                    
-                } else {
-                    printf("\t\tMonto de apuesta inválido, revisá tú dinero disponible\n");
-                }                
-            } while (!apuestaValida);  // Repetir hasta que la apuesta sea válida
-        }
-
-        // -------------------- apuestas - fin ----------------------
-
-        // Si el jugador quiere apostar, continúa con el turno de pedir cartas
-        while (jugadores[i].suma < 21) {
-            printf("%s, ¿deseas pedir otra carta? (s/n): ", jugadores[i].nombre);
-            opcion = getchar();
-            getchar(); // Limpiar buffer
-            if (opcion == 's') {
-                jugadores[i].mano[2] = cartas[indiceCarta++];
-                printf("Tienes las cartas: \n");
-                mostrar_mano(jugadores[i].mano, 3);
-                jugadores[i].suma += convertir_valor_carta(jugadores[i].mano[2], &jugadores[i].suma);
-                printf("Total: %d\n", jugadores[i].suma);
-            } else {
-                break;
-            }
-        }
-    }
-
-    // Turno del crupier
-    turno_crupier(&crupier, cartas, &indiceCarta);
-
-    // Mostrar el resultado
-    mostrar_resultado(jugadores, numJugadores, &crupier);
-}
 
 // --------------------------- ALMACENAMIENTO DE DATOS DEL JUGADOR ---------------------------
 void guardar_datos_jugador(Jugador jugador) {
@@ -289,24 +278,25 @@ void guardar_datos_jugador(Jugador jugador) {
     fclose(archivo);
 }
 
+
 // --------------------------- REGISTRO DE PARTIDAS ---------------------------
-// void guardar_registro_partida(Jugador jugadores) {
-//     FILE *archivo = fopen("registros_partidas.txt", "a"); // Abrir archivo en modo append
-//     if (archivo == NULL) {
-//         printf("Error al abrir el archivo para guardar el registro de la partida.\n");
-//         return;
-//     }
+void guardar_registro_partida(Jugador jugadores) {
+    FILE *archivo = fopen("registros_partidas.txt", "a"); // Abrir archivo en modo append
+    if (archivo == NULL) {
+        printf("Error al abrir el archivo para guardar el registro de la partida.\n");
+        return;
+    }
 
-//     // Escribir los resultados de la partida
-//     fprintf(archivo, "Jugador: %s, Dinero Acumulado: %d, Dinero Apuesta: %d, Dinero Ganado: %d, Dinero Perdido: %d, Partidas Ganadas: %d, Partidas Perdidas: %d\n",
-//         jugadores.nombre,
-//         jugadores.monto_apuesta,
-//         jugadores.dinero_apostado,
-//         jugadores.dinero_ganado / 2,
-//         jugadores.dinero_perdido,
-//         jugadores.partidas_ganadas,
-//         jugadores.partidas_perdidas
-//         );
+//    Escribir los resultados de la partida
+    fprintf(archivo, "Jugador: %s, Dinero Acumulado: %d, Dinero Apuesta: %d, Dinero Ganado: %d, Dinero Perdido: %d, Partidas Ganadas: %d, Partidas Perdidas: %d\n",
+        jugadores.nombre,
+        jugadores.monto_apuesta,
+        jugadores.dinero_apostado,
+        jugadores.dinero_ganado / 2,
+        jugadores.dinero_perdido,
+        jugadores.partidas_ganadas,
+        jugadores.partidas_perdidas
+        );
 
-//     fclose(archivo);
-// }
+    fclose(archivo);
+}
