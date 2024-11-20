@@ -54,13 +54,13 @@ int main(){
             
         (numJugadores)++;
     }
-
     choose_opt(&opt, jugadores, &numJugadores);
-    
 
-    // ---------- ranking --------------
-    //          codigo aqui
-    // ---------- ranking --------------
+
+    mostrar_ranking_combinado(jugadores, numJugadores);
+
+    mostrar_contenido_archivo("datos_jugadores.txt");
+    mostrar_contenido_archivo("registros_partidas.txt");
 
     printf("\nPresione una tecla para salir\n");
     getchar();
