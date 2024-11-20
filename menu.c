@@ -46,12 +46,12 @@ void choose_opt(int *opt, Jugador jugadores[], int *numJugadores){  // Función 
 
             case 4:
                 printf("\nOpción %d elegida: Ver ranking ganadores: \n", *opt);
-                // Lógica de ranking ganadores aquí
+                mostrar_ranking(jugadores, *numJugadores);
                 break;
 
             case 5:
                 printf("\nOpción %d elegida: Ver ranking perdedores: \n", *opt);
-                // Lógica de ranking perdedores aquí
+                mostrar_ranking_perdedores(jugadores, *numJugadores);
                 break;
 
             case 6:
