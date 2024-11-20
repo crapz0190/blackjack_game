@@ -11,12 +11,13 @@ typedef struct {
     int mano[CARTAS_JUGADOR];
     int suma;
     int monto_inicial;
-    int monto_apuesta; // Dinero Acumulado
-    int dinero_apostado; // Apuesta realizada
+    int monto_apuesta;
+    int dinero_apostado;
     int dinero_perdido;
     int dinero_ganado;
-    int partidas_ganadas;  // número de partidas ganadas
-    int partidas_perdidas; // número de partidas perdidas
+    int partidas_ganadas;
+    int partidas_perdidas;
+    int partidas_empatadas;
     int contador_ganancias;
     int contador_perdidas;
 } Jugador;
@@ -32,7 +33,19 @@ void mostrar_carta(int carta);
 void mostrar_mano(int mano[], int cantidad);
 void mostrar_resultado(Jugador jugadores[], int numJugadores, Jugador *crupier);
 void turno_crupier(Jugador *crupier, int cartas[], int *indiceCarta);
+
+void merge_sort(Jugador jugadores[], int left, int right);
+void merge(Jugador jugadores[], int left, int mid, int right);
+void mostrar_ranking(Jugador jugadores[], int numJugadores);
+void mostrar_ranking_perdedores(Jugador jugadores[], int numJugadores);
+void mostrar_ranking_empatadas(Jugador jugadores[], int numJugadores);
+
 void guardar_datos_jugador(Jugador jugador);
 void guardar_registro_partida(Jugador jugadores);
+void mostrar_contenido_archivo(const char *nombreArchivo);
+
+void mostrar_ranking_combinado(Jugador jugadores[], int numJugadores);
+
+
 
 #endif
