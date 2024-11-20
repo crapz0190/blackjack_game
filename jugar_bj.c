@@ -230,7 +230,7 @@ void mostrar_resultado(Jugador jugadores[], int numJugadores, Jugador *crupier) 
         // -------------------------- GUARDAS LOS RESULTADOS EN LOS ARCHIVOS --------------------------
     for (int i = 0; i < numJugadores; i++) {
         guardar_datos_jugador(jugadores[i]);  // Guardar los datos actualizados de los jugadores
-        // guardar_registro_partida(jugadores[i]); // Guardar los registros de la partida
+         guardar_registro_partida(jugadores[i]); // Guardar los registros de la partida
     }
 }
 
